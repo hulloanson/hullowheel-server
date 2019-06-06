@@ -6,5 +6,6 @@ include_directories("/usr/include/")
 link_libraries("explain")
 
 aux_source_directory("./src" SOURCES)
-add_executable("./bin/VWheel" ${SOURCES})
+
+add_executable("VWheel" ${SOURCES})
 
