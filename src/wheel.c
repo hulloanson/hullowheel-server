@@ -67,7 +67,7 @@ int add_wheel_w_pedals(struct vwheel *wheel) {
   return 0;
 }
 
-int emit(int fd, int type, int code, int val, int emit_syn) {
+int emit(struct vwheel *wheel, int type, int code, int val, int emit_syn) {
   struct input_event ie;
 
   memset(&ie, 0, sizeof(struct input_event));
@@ -76,12 +76,12 @@ int emit(int fd, int type, int code, int val, int emit_syn) {
   ie.value = val;
   gettimeofday(&ie.time, NULL);
 
-  if (check_fail(write(fd, &ie, sizeof(struct input_event)),
+  if (check_fail(write(wheel->fd, &ie, sizeof(struct input_event)),
                  "emit: write input_event to uinput fd") < 0) {
     return -1;
   }
   if (emit_syn > 0)
-    return emit(fd, EV_SYN, SYN_REPORT, 0, 0);
+    return emit(wheel->fd, EV_SYN, SYN_REPORT, 0, 0);
   return 0;
 }
 
