@@ -1,6 +1,11 @@
 #ifndef VWHEEL_UDEV
 #define VWHEEL_UDEV
 
+struct vwheel {
+  int fd;
+  char name[50];
+};
+
 int emit(int fd, int type, int code, int val, int emit_syn);
 
 int clean_up();
