@@ -12,9 +12,9 @@
 #include <netinet/in.h>
 #include "lib.h"
 
-int fd, pipe_r, pipe_w;
+static int fd, pipe_r, pipe_w;
 
-int close_fd() {
+static int close_fd() {
   return close(fd);
 }
 
@@ -51,7 +51,7 @@ int serve(int pipe_r, int pipe_w) {
   return 0;
 }
 
-int setup() {
+int server_setup() {
   const int port = 20000;
 
   if (check_fail(fd = socket(AF_INET, SOCK_DGRAM, 0), "create udp socket", 0, 0) < 0) {
@@ -59,11 +59,11 @@ int setup() {
   }
 
   struct sockaddr_in addr;
-  memset(&addr, 0, sizeof(sockaddr_in));
+  memset(&addr, 0, sizeof(struct sockaddr_in));
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  if (check_fail(bind(fd, (struct sockaddr *)&addr, sizeof(addr)), "bind to 0.0.0.0:20000", close_fd, "close socket fd") < 0) {
+  if (check_fail(bind(fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)), "bind to 0.0.0.0:20000", close_fd, "close socket fd") < 0) {
     return -1;
   }
   return 0;
