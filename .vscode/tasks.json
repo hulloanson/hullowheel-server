@@ -1,18 +1,9 @@
 {
   "tasks": [
     {
+      "label": "build",
       "type": "shell",
-      "label": "gcc build active file",
-      "command": "/usr/bin/gcc",
-      "args": [
-        "-g",
-        "${file}",
-        "-o",
-        "${fileDirname}/${fileBasenameNoExtension}"
-      ],
-      "options": {
-        "cwd": "/usr/bin"
-      }
+      "command": "cmake -DCMAKE_BUILD_TYPE=Debug . && make"
     }
   ],
   "version": "2.0.0"

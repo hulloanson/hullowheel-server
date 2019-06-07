@@ -4,7 +4,11 @@
     "uinput.h": "c",
     "input.h": "c",
     "fcntl.h": "c",
-    "socket.h": "c"
+    "socket.h": "c",
+    "server.h": "c",
+    "errno.h": "c",
+    "zlib.h": "c"
   },
-  "cmake.configureOnOpen": true
+  "cmake.configureOnOpen": true,
+  "debug.node.autoAttach": "on"
 }

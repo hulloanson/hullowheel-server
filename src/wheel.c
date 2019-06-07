@@ -18,7 +18,7 @@ struct vwheel* make_vwheel(const char *name) {
 }
 
 int close_wheel(struct vwheel *wheel) {
-  printf("Closing wheel %s", wheel->name);
+  printf("Closing wheel %s\n", wheel->name);
   return check_fail(close(wheel->fd), "close wheel by fd");
 }
 
@@ -159,9 +159,11 @@ int setup_wheel(struct vwheel *wheel) {
 }
 
 int remove_wheel(struct vwheel *wheel) {
-  if (check_fail(ioctl(wheel->fd, UI_DEV_DESTROY), "ioctl: UI_DEV_DESTROY") <
-      0) {
-    return -1;
-  }
-  return close_wheel(wheel);
+  printf("Removing wheel from uinput...\n");
+  int res = 0;
+  res = check_fail(ioctl(wheel->fd, UI_DEV_DESTROY), "ioctl: UI_DEV_DESTROY");
+  res |= close_wheel(wheel);
+  free(wheel);
+  printf("Removed wheel from uinput.\n");
+  return res;
 }

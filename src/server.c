@@ -12,6 +12,7 @@
 #include <string.h>
 #include <strings.h>
 #include <math.h>
+#include <errno.h>
 #include "lib.h"
 #include "server.h"
 #include "wheel.h"
@@ -24,23 +25,30 @@ struct server* make_server(int port) {
 }
 
 float get_float(char *bytes, int offset) {
-  float *value;
-  memset(value, 0, sizeof(float));
-  bcopy(bytes + offset, value, 4);
-  return *value;
+  float value = 0.0;
+  bcopy(bytes + offset, &value, 4);
+  return value;
 }
 
-signed int normalize_rotation(float raw, int raw_min, int raw_max) {
-  float amplified = raw * (raw_max - raw_min) + raw_min;
+signed int normalize_rotation(float raw, int raw_min, int raw_max, int expected_min, int expected_max) {
+  float amplified = (raw - raw_min) / (raw_max - raw_min) * (expected_max - expected_min) + expected_min;
   return (signed int) floor(amplified);
 }
 
 struct frame* parse_data(char *bytes) {
   struct frame *frame = (struct frame*)calloc(1, sizeof(struct frame));
-  frame->wheel = normalize_rotation(get_float(bytes, WHEEL_OFFSET), WHEEL_MIN_VALUE, WHEEL_MAX_VALUE);
-  frame->gas = normalize_rotation(get_float(bytes, GAS_OFFSET), GAS_MIN_VALUE, GAS_MAX_VALUE);
-  frame->brake = normalize_rotation(get_float(bytes, BRAKE_OFFSET), BRAKE_MIN_VALUE, BRAKE_MAX_VALUE);
-  bcopy(bytes + BTNS_OFFSET, frame->btns, 40);
+  // float wheel = get_float(bytes, WHEEL_OFFSET);
+  // float gas = get_float(bytes, GAS_OFFSET);
+  // float brake = get_float(bytes, BRAKE_OFFSET);
+  // printf("raw: wheel: %f; gas: %f; brake: %f\n", wheel, gas, brake);
+
+  frame->wheel = normalize_rotation(get_float(bytes, WHEEL_OFFSET), WHEEL_MIN_VALUE, WHEEL_MAX_VALUE, WHEEL_EXPECTED_MIN, WHEEL_EXPECTED_MAX);
+  
+  frame->gas = normalize_rotation(get_float(bytes, GAS_OFFSET), GAS_MIN_VALUE, GAS_MAX_VALUE, GAS_EXPECTED_MIN, GAS_EXPECTED_MAX);
+
+  frame->brake = normalize_rotation(get_float(bytes, BRAKE_OFFSET), BRAKE_MIN_VALUE, BRAKE_MAX_VALUE, BRAKE_EXPECTED_MIN, BRAKE_EXPECTED_MAX);
+  bcopy(bytes + BTNS_OFFSET, frame->btns, BTNS_COUNT);
+  // printf("normalized: wheel: %d; gas: %d; brake: %d\n", frame->wheel, frame->gas, frame->brake);
   return frame;
 }
 
@@ -65,17 +73,26 @@ int emit_frame(struct vwheel *wheel, struct frame *frame) {
 }
 
 int close_server(struct server *srv) {
+  printf("Closing server...\n");
   srv->should_run = 0;
-  return close(srv->fd);
+  int res = 0;
+  res = close(srv->fd);
+  free(srv);
+  printf("Closed server.\n");
+  return res;
 }
 
 int serve(struct server *srv, struct vwheel *wheel) {
-  // 3 axes, 40 buttons i.e. 3 * 4 bytes + 40 bytes = 52 bytes
-  const int expected_len = 52;
+  // 3 axes, 40 buttons i.e. 3 * 4 bytes + 24 bytes = 36 bytes
   int actual_len;
-  char buf[expected_len];
+  char buf[EXPECTED_LEN];
+  printf("Serving.\n");
+  int res;
   while (srv->should_run) {
-    if (check_fail(recvfrom(srv->fd, buf, expected_len, 0, 0, 0), "receive data over UDP") < 0) {
+    res = recvfrom(srv->fd, buf, EXPECTED_LEN, 0, 0, 0);
+    if (res != 0 && errno == EAGAIN)
+      continue;
+    if (check_fail(res, "receive data over UDP") < 0) {
       close_server(srv);
       return -1;
     }
@@ -84,7 +101,7 @@ int serve(struct server *srv, struct vwheel *wheel) {
       return -1;
     }
   }
-  close_server(srv);
+  printf("Stopped serving.\n");
   return 0;
 }
 
@@ -99,6 +116,13 @@ int setup_server(struct server *srv) {
   addr.sin_port = htons(srv->port);
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
   if (check_fail(bind(srv->fd, (struct sockaddr *)&addr, sizeof(struct sockaddr_in)), "bind to 0.0.0.0:20000") < 0) {
+    return -1;
+  }
+  struct timeval tv;
+  tv.tv_sec = 1;
+  tv.tv_usec = 0;
+  if (check_fail(setsockopt(srv->fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv)), "set server timeout") < 0) {
+    close_server(srv);
     return -1;
   }
   return 0;
