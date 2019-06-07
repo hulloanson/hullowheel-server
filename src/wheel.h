@@ -8,8 +8,8 @@ struct vwheel {
 
 int emit(struct vwheel *wheel, int type, int code, int val, int emit_syn);
 
-int clean_up();
+int remove_wheel(struct vwheel *wheel);
 
-int udev_setup();
+int setup_wheel(struct vwheel *wheel);
 
 #endif
