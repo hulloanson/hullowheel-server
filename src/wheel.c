@@ -113,7 +113,7 @@ int register_wheel(struct vwheel *wheel) {
     udev.absmin[i] = SHRT_MIN;
     udev.absmax[i] = SHRT_MAX;
   }
-  strcpy(udev.name, "HulloWheel");
+  strcpy(udev.name, wheel->name);
 
   // Register
   if (check_fail(write(wheel->fd, &udev, sizeof(struct uinput_user_dev)),
