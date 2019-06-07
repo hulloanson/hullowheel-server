@@ -42,4 +42,8 @@ struct frame {
 
 int serve(struct server *srv, struct vwheel *wheel);
 
+int setup_server(struct server *srv);
+
+int close_server(struct server *srv);
+
 #endif
