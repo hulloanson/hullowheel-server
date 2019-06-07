@@ -10,6 +10,13 @@
 #include <string.h>
 #include <unistd.h>
 
+struct vwheel* make_vwheel(const char *name) {
+  struct vwheel *wheel;
+  memset(wheel, 0, sizeof(struct vwheel));
+  strcpy(wheel->name, name);
+  return wheel;
+}
+
 int close_wheel(struct vwheel *wheel) {
   printf("Closing wheel %s", wheel->name);
   return check_fail(close(wheel->fd), "close wheel by fd");

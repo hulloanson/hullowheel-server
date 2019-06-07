@@ -25,13 +25,7 @@ struct server {
   int should_run;
 };
 
-struct server* make_server(int port) {
-  struct server *srv;
-  memset(srv, 0, sizeof(struct server));
-  srv->port = port;
-  srv->should_run = 1;
-  return srv;
-}
+struct server* make_server(int port);
 
 struct frame {
   signed int wheel;

@@ -15,6 +15,14 @@
 #include "server.h"
 #include "wheel.h"
 
+struct server* make_server(int port) {
+  struct server *srv;
+  memset(srv, 0, sizeof(struct server));
+  srv->port = port;
+  srv->should_run = 1;
+  return srv;
+}
+
 float get_float(char *bytes, int offset) {
   float *value;
   memset(value, 0, sizeof(float));
@@ -24,7 +32,7 @@ float get_float(char *bytes, int offset) {
 
 signed int normalize_rotation(float raw, int raw_min, int raw_max) {
   float amplified = raw * (raw_max - raw_min) + raw_min;
-  return (signed int) floorf(amplified);
+  return (signed int) floor(amplified);
 }
 
 struct frame* parse_data(char *bytes) {
