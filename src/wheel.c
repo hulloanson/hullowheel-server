@@ -78,10 +78,11 @@ int emit(struct vwheel *wheel, int type, int code, int val, int emit_syn) {
 
   if (check_fail(write(wheel->fd, &ie, sizeof(struct input_event)),
                  "emit: write input_event to uinput fd") < 0) {
+    close_wheel(wheel);
     return -1;
   }
   if (emit_syn > 0)
-    return emit(wheel->fd, EV_SYN, SYN_REPORT, 0, 0);
+    return emit(wheel, EV_SYN, SYN_REPORT, 0, 0);
   return 0;
 }
 
