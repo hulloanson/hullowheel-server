@@ -4,7 +4,7 @@ project(VWheel)
 
 include_directories("/usr/include/")
 
-link_libraries("explain" "thread")
+link_libraries("explain" "pthread")
 
 aux_source_directory("./src" SOURCES)
 
