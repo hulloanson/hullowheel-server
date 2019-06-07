@@ -16,6 +16,7 @@
 #define BRAKE_MIN_VALUE 0
 #define BRAKE_MAX_VALUE 200
 
+#include <string.h>
 #include "wheel.h"
 
 struct server {
@@ -23,6 +24,14 @@ struct server {
   int fd;
   int should_run;
 };
+
+struct server* make_server(int port) {
+  struct server *srv;
+  memset(srv, 0, sizeof(struct server));
+  srv->port = port;
+  srv->should_run = 1;
+  return srv;
+}
 
 struct frame {
   signed int wheel;
