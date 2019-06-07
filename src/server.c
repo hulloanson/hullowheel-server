@@ -12,6 +12,7 @@
 #include <string.h>
 #include <strings.h>
 #include <math.h>
+#include <zlib.h>
 #include <errno.h>
 #include "lib.h"
 #include "server.h"
@@ -33,6 +34,32 @@ float get_float(char *bytes, int offset) {
 signed int normalize_rotation(float raw, int raw_min, int raw_max, int expected_min, int expected_max) {
   float amplified = (raw - raw_min) / (raw_max - raw_min) * (expected_max - expected_min) + expected_min;
   return (signed int) floor(amplified);
+}
+
+int decompress_data(char *out, char *in, int size) {
+  z_stream strm;
+  strm.zalloc = Z_NULL;
+  strm.zfree = Z_NULL;
+  strm.opaque = Z_NULL;
+  strm.avail_in = size;
+  strm.avail_out = EXPECTED_LEN;
+  strm.next_in = (Bytef *)in;
+  strm.next_out = (Bytef *)out;
+  if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK) {
+    printf("err in inflateInit");
+    return -1;
+  }
+  int res;
+  if (!((res = inflate(&strm, Z_NO_FLUSH)) == Z_OK || res == Z_STREAM_END)) {
+    printf("err in inflate. code was %d\n", res);
+    return -1;
+  }
+
+  if (inflateEnd(&strm) != Z_OK) {
+    printf("err in inflateEnd");
+    return -1;
+  }
+  return 0;
 }
 
 struct frame* parse_data(char *bytes) {
@@ -84,19 +111,27 @@ int close_server(struct server *srv) {
 
 int serve(struct server *srv, struct vwheel *wheel) {
   // 3 axes, 40 buttons i.e. 3 * 4 bytes + 24 bytes = 36 bytes
-  int actual_len;
-  char buf[EXPECTED_LEN];
+  char in[EXPECTED_LEN];
   printf("Serving.\n");
   int res;
   while (srv->should_run) {
-    res = recvfrom(srv->fd, buf, EXPECTED_LEN, 0, 0, 0);
+    // Get size
+    res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
     if (res != 0 && errno == EAGAIN)
       continue;
+    int size = res;
     if (check_fail(res, "receive data over UDP") < 0) {
       close_server(srv);
       return -1;
     }
-    if (emit_frame(wheel, parse_data(buf)) < 0) {
+    printf("size: %d\n", size);
+    // Get data
+    char decompressed[EXPECTED_LEN];
+    if (check_fail(decompress_data(decompressed, in, size), "decompress data") < 0) {
+      close_server(srv);
+      return -1;
+    }
+    if (emit_frame(wheel, parse_data(decompressed)) < 0) {
       close_server(srv);
       return -1;
     }
