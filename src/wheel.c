@@ -8,11 +8,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 
 struct vwheel* make_vwheel(const char *name) {
-  struct vwheel *wheel;
-  memset(wheel, 0, sizeof(struct vwheel));
+  struct vwheel *wheel = (struct vwheel*)calloc(1, sizeof(struct vwheel));
   strcpy(wheel->name, name);
   return wheel;
 }

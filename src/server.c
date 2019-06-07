@@ -3,21 +3,21 @@
 #include <linux/uinput.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <libexplain/ioctl.h>
 #include <limits.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <string.h>
+#include <strings.h>
 #include <math.h>
 #include "lib.h"
 #include "server.h"
 #include "wheel.h"
 
 struct server* make_server(int port) {
-  struct server *srv;
-  memset(srv, 0, sizeof(struct server));
+  struct server *srv = (struct server*) calloc(1, sizeof(struct server));
   srv->port = port;
   srv->should_run = 1;
   return srv;
@@ -36,8 +36,7 @@ signed int normalize_rotation(float raw, int raw_min, int raw_max) {
 }
 
 struct frame* parse_data(char *bytes) {
-  struct frame *frame;
-  memset(frame, 0, sizeof(struct frame));
+  struct frame *frame = (struct frame*)calloc(1, sizeof(struct frame));
   frame->wheel = normalize_rotation(get_float(bytes, WHEEL_OFFSET), WHEEL_MIN_VALUE, WHEEL_MAX_VALUE);
   frame->gas = normalize_rotation(get_float(bytes, GAS_OFFSET), GAS_MIN_VALUE, GAS_MAX_VALUE);
   frame->brake = normalize_rotation(get_float(bytes, BRAKE_OFFSET), BRAKE_MIN_VALUE, BRAKE_MAX_VALUE);
@@ -61,6 +60,7 @@ int emit_frame(struct vwheel *wheel, struct frame *frame) {
       return -1;
     }
   }
+  free(frame);
   return 0;
 }
 
