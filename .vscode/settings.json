@@ -3,7 +3,8 @@
     "*.html": "twig",
     "uinput.h": "c",
     "input.h": "c",
-    "fcntl.h": "c"
+    "fcntl.h": "c",
+    "socket.h": "c"
   },
   "cmake.configureOnOpen": true
 }
