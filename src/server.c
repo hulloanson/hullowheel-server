@@ -76,6 +76,7 @@ int serve(struct server *srv, struct vwheel *wheel) {
       return -1;
     }
   }
+  close_server(srv);
   return 0;
 }
 
