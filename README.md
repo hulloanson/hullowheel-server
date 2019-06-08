@@ -19,8 +19,8 @@ I had the following inputs:
 and the following output:
 HulloWheel, a Android client + Linux server combination. See [Hacking](https://github.com/hulloanson/hullowheel-server#Hacking) for details
 
-## How to install?
-This is super-beta. You will need to build it yourself for now. No binaries I'm sorry.
+## Build and run
+This is super-alpha. You will need to build it yourself for now. No binaries I'm sorry.
 ### Dependencies
 A list of libraries required:
 ```
@@ -49,6 +49,12 @@ cd hullowheel-server
 cmake . && make
 ```
 A binary named `VWheel` will appear at the root directory. Run it. Try it out with https://github.com/hulloanson/hullowheel-android
+
+### Run
+```
+./VWheel
+// Press Ctrl-C / send SIGINT to stop it.
+```
 
 ## Known issues & TODOs
 1. Now server normalizes client values. It shouldn't happen. Should leave it up to the client.
