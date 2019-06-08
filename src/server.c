@@ -31,6 +31,7 @@ float get_float(char *bytes, int offset) {
   return value;
 }
 
+// TODO: this really should be done at the client
 signed int normalize_rotation(float raw, int raw_min, int raw_max, int expected_min, int expected_max) {
   float processed = floor(raw);
   float amplified = (processed - raw_min) / (raw_max - raw_min) * (expected_max - expected_min) + expected_min;
