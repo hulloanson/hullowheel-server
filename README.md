@@ -108,4 +108,4 @@ Also layout of a "frame":
 *Note: all floats are 32-bit precision float, little endian*
 
 ### Contributing
-First a big thank you for your efforts. Please always make a PR on the `dev` branch.
+First a big thank you for your efforts. Please always make PRs on the `dev` branch.
