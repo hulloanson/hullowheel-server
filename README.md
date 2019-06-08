@@ -2,7 +2,7 @@
 Server part of the HulloWheel, a virtual gaming wheel on Linux.
 
 ## Why?
-I'm a lover of Euro Truck Simulator. I love overspeeding in it. Problems are:
+I'm a lover of Euro Truck Simulator 2. I love overspeeding in it. Problems are:
 
 1. I play on Linux (Ubuntu + Steam OS)
 2. I don't have a physical joystick / game wheel
@@ -17,7 +17,7 @@ I had the following inputs:
 3. ETS2 (that was how I tested my wheel)
 
 and the following output:
-HulloWheel, a Android client + Linux server combination. See [Hacking](https://github.com/hulloanson/hullowheel-server#Hacking) for details
+1. HulloWheel, a Android client + Linux server combination. See [Hacking](https://github.com/hulloanson/hullowheel-server#Hacking) for details
 
 ## Build and run
 This is super-alpha. You will need to build it yourself for now. No binaries I'm sorry.
@@ -39,7 +39,7 @@ On Ubuntu / Debian:
 apt-get install cmake make zlib1g zlib1g-dev libpthread-stubs0-dev
 ```
 
-I don't know other platforms. Please make a PR to this README if you know. Thanks.
+I don't know other systems. Please make a PR to this README if you know. Thanks.
 
 ### Build steps
 ```
@@ -55,17 +55,28 @@ A binary named `VWheel` will appear at the root directory. Run it. Try it out wi
 ./VWheel
 // Press Ctrl-C / send SIGINT to stop it.
 ```
+## TODOs
+### Known issues
+1. [ ] Now server normalizes client values. It shouldn't happen. Should leave it up to the client.
 
-## Known issues & TODOs
-1. Now server normalizes client values. It shouldn't happen. Should leave it up to the client.
-2. Haven't tested it with other games. Tested it with `jstest` though. Was fine.
-3. Performance optimization. Now it lags behind a bit. 
+2. [ ] Performance. Now it lags behind a bit. 
   
     Possible reasons:
     - Now each frame averages 29 bytes gzipped, which contains the state of all 24 buttons and 3 axes (wheel, gas, brake). Perhaps send only the modified inputs?
   
-4. The only way to configure which port to listen to is to modify the code. Add argument support.
-5. There are also integration issues (nothing major, just inconveniences like restarting the server) with [hullowheel-anrdroid](https://github.com/hulloanson/hullowheel-android)
+3. [ ] The only way to configure which port to listen to is to modify the code. Add argument support.
+4. [ ] Have to restart server and android app after disconnects. Probably due to UDP intricacies I'm not familiar with.
+
+### Hope-to-have Features
+1. [ ] Runs on Windows
+2. [ ] GUI
+
+## Try it with other games!
+Now works with:
+  - Euro Truck Simulator 2
+  - `jstest`
+  
+Please add to this list if you find HulloWheel works with a game / software. Thanks.
 
 ## Hacking
 ### Overview of this server code
@@ -80,7 +91,7 @@ Entrypoint. It:
   - listens for interrupts and tear down the wheel and server
   
 #### Wheel
-Everything about the wheel. Cerating the wheel, registering on `uinput`, writing event input, etc. Exposes function `emit` that `Server` uses
+Everything about the wheel. Creating the wheel, registering on `uinput`, writing event input, etc. Exposes function `emit` that `Server` uses
 
 #### Server
 The listening socket part. The data decompressing part. The data parsing part. Also "emits" input events. 
