@@ -1,5 +1,5 @@
 # hullowheel-server
-Server part of the HulloWheel, a virtual game wheel on Linux.
+Server part of the HulloWheel, a virtual gaming wheel on Linux.
 
 ## Why?
 I'm a lover of Euro Truck Simulator. I love overspeeding in it. Problems are:
@@ -81,9 +81,14 @@ The listening socket part. The data decompressing part. The data parsing part. A
 
 Also layout of a "frame":
 
+```
 0                  4                  8                  12                                                     36
 |------------------|------------------|------------------|------------------------------------------------------|
 |  wheel (float)   |  gas (float)     |  brake (float)   | buttons (byte) * 24                                  |
 |------------------|------------------|------------------|------------------------------------------------------|
+```
 
 *Note: all floats are 32-bit precision float, little endian*
+
+### Contributing
+First a big thank you for your efforts. Please always make a PR on the `dev` branch.
