@@ -32,8 +32,9 @@ float get_float(char *bytes, int offset) {
 }
 
 signed int normalize_rotation(float raw, int raw_min, int raw_max, int expected_min, int expected_max) {
-  float amplified = (raw - raw_min) / (raw_max - raw_min) * (expected_max - expected_min) + expected_min;
-  return (signed int) floor(amplified);
+  float processed = floor(raw);
+  float amplified = (processed - raw_min) / (raw_max - raw_min) * (expected_max - expected_min) + expected_min;
+  return (signed int) amplified;
 }
 
 int decompress_data(char *out, char *in, int size) {
