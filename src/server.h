@@ -3,6 +3,8 @@
 
 #include <limits.h>
 
+#define SERVER_PORT 20000
+
 #define WHEEL_OFFSET 0
 #define GAS_OFFSET 4
 #define BRAKE_OFFSET 8

@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  srv = make_server(20000);
+  srv = make_server(SERVER_PORT);
   if (setup_server(srv) < 0) {
     return -1;
   }

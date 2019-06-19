@@ -119,8 +119,14 @@ int serve(struct server *srv, struct vwheel *wheel) {
   while (srv->should_run) {
     // Get size
     res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
-    if (res != 0 && errno == EAGAIN)
+    if (res != 0 && errno == EAGAIN) {
+      close_server(srv);
+      srv = make_server(SERVER_PORT);
+      if (setup_server(srv) < 0) {
+        return -1;
+      }
       continue;
+    }
     int size = res;
     if (check_fail(res, "receive data over UDP") < 0) {
       close_server(srv);
@@ -156,8 +162,8 @@ int setup_server(struct server *srv) {
     return -1;
   }
   struct timeval tv;
-  tv.tv_sec = 1;
-  tv.tv_usec = 0;
+  tv.tv_sec = 0;
+  tv.tv_usec = 500000;
   if (check_fail(setsockopt(srv->fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv)), "set server timeout") < 0) {
     close_server(srv);
     return -1;
