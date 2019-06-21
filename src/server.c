@@ -17,6 +17,7 @@
 #include "lib.h"
 #include "server.h"
 #include "wheel.h"
+#include "macrologger.h"
 
 struct server* make_server(int port) {
   struct server *srv = (struct server*) calloc(1, sizeof(struct server));
@@ -47,17 +48,17 @@ int decompress_data(char *out, char *in, int size) {
   strm.next_in = (Bytef *)in;
   strm.next_out = (Bytef *)out;
   if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK) {
-    printf("err in inflateInit");
+    LOG_INFO("err in inflateInit");
     return -1;
   }
   int res;
   if (!((res = inflate(&strm, Z_NO_FLUSH)) == Z_OK || res == Z_STREAM_END)) {
-    printf("err in inflate. code was %d\n", res);
+    LOG_INFO("err in inflate. code was %d", res);
     return -1;
   }
 
   if (inflateEnd(&strm) != Z_OK) {
-    printf("err in inflateEnd");
+    LOG_INFO("err in inflateEnd");
     return -1;
   }
   return 0;
@@ -68,7 +69,7 @@ struct frame* parse_data(char *bytes) {
   // float wheel = get_float(bytes, WHEEL_OFFSET);
   // float gas = get_float(bytes, GAS_OFFSET);
   // float brake = get_float(bytes, BRAKE_OFFSET);
-  // printf("raw: wheel: %f; gas: %f; brake: %f\n", wheel, gas, brake);
+  // LOG_INFO("raw: wheel: %f; gas: %f; brake: %f", wheel, gas, brake);
 
   frame->wheel = normalize_rotation(get_float(bytes, WHEEL_OFFSET), WHEEL_MIN_VALUE, WHEEL_MAX_VALUE, WHEEL_EXPECTED_MIN, WHEEL_EXPECTED_MAX);
   
@@ -76,7 +77,7 @@ struct frame* parse_data(char *bytes) {
 
   frame->brake = normalize_rotation(get_float(bytes, BRAKE_OFFSET), BRAKE_MIN_VALUE, BRAKE_MAX_VALUE, BRAKE_EXPECTED_MIN, BRAKE_EXPECTED_MAX);
   bcopy(bytes + BTNS_OFFSET, frame->btns, BTNS_COUNT);
-  // printf("normalized: wheel: %d; gas: %d; brake: %d\n", frame->wheel, frame->gas, frame->brake);
+  // LOG_INFO("normalized: wheel: %d; gas: %d; brake: %d", frame->wheel, frame->gas, frame->brake);
   return frame;
 }
 
@@ -101,23 +102,23 @@ int emit_frame(struct vwheel *wheel, struct frame *frame) {
 }
 
 int close_server(struct server *srv) {
-  printf("Closing server...\n");
+  LOG_INFO("Closing server...");
   int res = 0;
   res = close(srv->fd);
-  printf("Closed server. close() said %d. errno was %d\n", res, res == 0 ? 0 : errno);
+  LOG_INFO("Closed server. close() said %d. errno was %d", res, res == 0 ? 0 : errno);
   return res;
 }
 
 int serve(struct server *srv, struct vwheel *wheel, int *should_run) {
   // 3 axes, 40 buttons i.e. 3 * 4 bytes + 24 bytes = 36 bytes
   char in[EXPECTED_LEN];
-  printf("Serving.\n");
+  LOG_INFO("Serving.");
   int res;
   while (*should_run == 1) {
     // Get size
     res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
     if (res != 0 && errno == EAGAIN) {
-      printf("Receive timed out.\n");
+      LOG_INFO("Receive timed out.");
       return -2;
     }
     int size = res;
@@ -133,7 +134,7 @@ int serve(struct server *srv, struct vwheel *wheel, int *should_run) {
       return -1;
     }
   }
-  printf("Stopped serving.\n");
+  LOG_INFO("Stopped serving.");
   return 0;
 }
 

@@ -13,6 +13,7 @@
 #include "wheel.h"
 #include "server.h"
 #include "cmdline.h"
+#include "macrologger.h"
 
 struct vwheel *wheel;
 struct server *srv;
@@ -32,7 +33,7 @@ void* serve_in_thread(void *arg) {
 
 void int_handler(int sig, siginfo_t *siginfo, void *context) {
   signal(sig, SIG_IGN);
-  printf("Interrupt detected. Exiting...\n");
+  LOG_INFO("Interrupt detected. Exiting...");
   *should_run = 0;
 }
 
@@ -76,7 +77,7 @@ int main(int argc, char **argv) {
   *srv_exit = -2;
   int first = 1;
   while (*srv_exit == -2) {
-    printf("%s server thread\n", first-- == 1 ? "Creating": "Re-creating");
+    LOG_INFO("%s server thread", first-- == 1 ? "Creating": "Re-creating");
     server_thread = (pthread_t *) calloc(1, sizeof(pthread_t));
     srv = make_server(port);
     if (setup_server(srv) < 0) {
@@ -98,11 +99,11 @@ int main(int argc, char **argv) {
     if (res == -1) break;
   }
 
-  printf("Server thread closed.\n");
-  printf("Now removing wheel...\n");
+  LOG_INFO("Server thread closed.");
+  LOG_INFO("Now removing wheel...");
   remove_wheel(wheel);
 
-  printf("Shutdown procedure completed. Bye.\n");
+  LOG_INFO("Shutdown procedure completed. Bye.");
 
   return -1;
 }

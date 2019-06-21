@@ -10,6 +10,7 @@
 #include <string.h>
 #include <strings.h>
 #include <unistd.h>
+#include "macrologger.h"
 
 struct vwheel* make_vwheel(const char *name) {
   struct vwheel *wheel = (struct vwheel*)calloc(1, sizeof(struct vwheel));
@@ -18,7 +19,7 @@ struct vwheel* make_vwheel(const char *name) {
 }
 
 int close_wheel(struct vwheel *wheel) {
-  printf("Closing wheel %s\n", wheel->name);
+  LOG_INFO("Closing wheel %s", wheel->name);
   return check_fail(close(wheel->fd), "close wheel by fd");
 }
 
@@ -40,7 +41,7 @@ int add_input(struct vwheel *wheel, const char *setbit_name, int ev_code,
 }
 
 int add_wheel_btns(struct vwheel *wheel) {
-  printf("Adding buttons to the wheel\n");
+  LOG_INFO("Adding buttons to the wheel");
   int i;
   for (i = BTN_TRIGGER_HAPPY; i <= BTN_TRIGGER_HAPPY40; i++) {
     if (check_fail(add_input(wheel, "UI_SET_KEYBIT", EV_KEY, UI_SET_KEYBIT, i),
@@ -49,7 +50,7 @@ int add_wheel_btns(struct vwheel *wheel) {
       return -1;
     }
   }
-  printf("Done adding buttons to the wheel\n");
+  LOG_INFO("Done adding buttons to the wheel");
   return 0;
 }
 
@@ -63,14 +64,14 @@ int add_wheel_abs(struct vwheel *wheel, int code) {
 }
 
 int add_wheel_w_pedals(struct vwheel *wheel) {
-  printf("Actually making the wheel and adding pedals\n");
+  LOG_INFO("Actually making the wheel and adding pedals");
   if (add_wheel_abs(wheel, ABS_WHEEL) < 0)
     return -1;
   if (add_wheel_abs(wheel, ABS_GAS) < 0)
     return -1;
   if (add_wheel_abs(wheel, ABS_BRAKE) < 0)
     return -1;
-  printf("Done making the wheel and its pedals.\n");
+  LOG_INFO("Done making the wheel and its pedals.");
   return 0;
 }
 
@@ -159,11 +160,11 @@ int setup_wheel(struct vwheel *wheel) {
 }
 
 int remove_wheel(struct vwheel *wheel) {
-  printf("Removing wheel from uinput...\n");
+  LOG_INFO("Removing wheel from uinput...");
   int res = 0;
   res = check_fail(ioctl(wheel->fd, UI_DEV_DESTROY), "ioctl: UI_DEV_DESTROY");
   res |= close_wheel(wheel);
   free(wheel);
-  printf("Removed wheel from uinput.\n");
+  LOG_INFO("Removed wheel from uinput.");
   return res;
 }
