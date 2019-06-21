@@ -1,0 +1,6 @@
+version "v0.1"
+package "HulloWheel"
+purpose "It is the server part of HulloWheel, the virtual wheel device that works on Linux"
+
+# Options
+option "port" p "the port HulloWheel Server listens to" int optional default="20000"

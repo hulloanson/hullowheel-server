@@ -70,3 +70,6 @@ CTestTestfile.cmake
 _deps
 
 /VWheel
+
+# gengetopts
+/src/cmdline.*

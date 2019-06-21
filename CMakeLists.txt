@@ -6,7 +6,7 @@ include_directories("/usr/include/")
 
 link_libraries("explain" "pthread" "m" "z")
 
-aux_source_directory("./src" SOURCES)
+aux_source_directory("${CMAKE_SOURCE_DIR}/src" SOURCES)
 
 add_executable("VWheel" ${SOURCES})
 

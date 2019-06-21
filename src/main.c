@@ -12,6 +12,7 @@
 #include "lib.h"
 #include "wheel.h"
 #include "server.h"
+#include "cmdline.h"
 
 struct vwheel *wheel;
 struct server *srv;
@@ -51,6 +52,11 @@ int register_sigint() {
 
 // TODO: catch interrupt https://stackoverflow.com/questions/4217037/catch-ctrl-c-in-c
 int main(int argc, char **argv) {
+  struct gengetopt_args_info args_info;
+  if (cmdline_parser(argc, argv, &args_info) != 0) {
+    exit(1);
+  }
+  int port = args_info.port_arg;
   should_run = (int *) calloc(1, sizeof(int));
   *should_run = 1;
   if( register_sigint() < 0) {
@@ -72,7 +78,7 @@ int main(int argc, char **argv) {
   while (*srv_exit == -2) {
     printf("%s server thread\n", first-- == 1 ? "Creating": "Re-creating");
     server_thread = (pthread_t *) calloc(1, sizeof(pthread_t));
-    srv = make_server(20000);
+    srv = make_server(port);
     if (setup_server(srv) < 0) {
       return -1;
     }
