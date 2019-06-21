@@ -1,5 +1,5 @@
 # hullowheel-server
-Server part of the HulloWheel, a virtual gaming wheel on Linux.
+Server part of HulloWheel, a virtual gaming wheel for Android + Linux
 
 ## Why?
 I'm a lover of Euro Truck Simulator 2. I love overspeeding in it. Problems are:
