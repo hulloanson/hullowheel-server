@@ -20,7 +20,7 @@ and the following output:
 1. HulloWheel, a Android client + Linux server combination. See [Hacking](https://github.com/hulloanson/hullowheel-server#Hacking) for details
 
 ## Installing
-There is a pre-built program available in the [release](https://github.com/hulloanson/hullowheel-server/releases) page. It is only for 64-bit Linux though. If your system is not, you'll have to [build the program yourself].
+There is a pre-built program available in the [release](https://github.com/hulloanson/hullowheel-server/releases) page. It is only for 64-bit Linux though. If your system is not, you'll have to [build the program yourself](https://github.com/hulloanson/hullowheel-server#building).
 
 Once downloaded, there are no installation step. Just run it.
 
