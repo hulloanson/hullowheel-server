@@ -105,6 +105,7 @@ int main(int argc, char **argv) {
   }
 
   LOG_INFO("Stopped serving.");
+  LOG_INFO("Cleaning up");
   remove_wheel(wheel);
 
   LOG_INFO("Shutdown procedure completed. Bye.");
