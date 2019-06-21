@@ -86,8 +86,7 @@ int main(int argc, char **argv) {
     srv_in.srv = srv;
     int res = pthread_create(server_thread, NULL, serve_in_thread, &srv_in);
     if (res != 0) {
-      fprintf(stderr,
-              "Could not create thread for server. error code was %d.\n", res);
+      LOG_ERROR("Could not create thread for server. error code was %d.\n", res);
       remove_wheel(wheel);
       return -1;
     }
