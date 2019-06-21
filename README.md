@@ -40,27 +40,27 @@ Also see the available options by:
 ### Dependencies
 A list of libraries required:
 ```
-// tools
+# tools
 cmake
 make
 gengetopt
 
-// libraries + headers
+# libraries + headers
 zlib
 pthread
 ```
 
 On Ubuntu / Debian:
 ```bash
-// With root privilege
+# With root privilege
 apt-get install cmake make zlib1g zlib1g-dev libpthread-stubs0-dev gengetopt
 ```
 
 I don't know other systems. Please make a PR to this README if you know. Thanks.
 
 ### Build steps
-```
-// Install dependencies first
+```bash
+# Install dependencies first
 https://github.com/hulloanson/hullowheel-server.git
 cd hullowheel-server
 ./build.sh
@@ -68,9 +68,9 @@ cd hullowheel-server
 A binary named `HulloWheel` will appear at the root directory. Run it. Try it out with https://github.com/hulloanson/hullowheel-android
 
 ### Run
-```
+```bash
 ./VWheel
-// Press Ctrl-C / send SIGINT to stop it.
+# Press Ctrl-C / send SIGINT to stop it.
 ```
 ## TODOs
 ### Known issues
