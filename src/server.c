@@ -112,7 +112,6 @@ int close_server(struct server *srv) {
 int serve(struct server *srv, struct vwheel *wheel, int *should_run) {
   // 3 axes, 40 buttons i.e. 3 * 4 bytes + 24 bytes = 36 bytes
   char in[EXPECTED_LEN];
-  LOG_INFO("Serving.");
   int res;
   while (*should_run == 1) {
     // Get size
@@ -134,7 +133,6 @@ int serve(struct server *srv, struct vwheel *wheel, int *should_run) {
       return -1;
     }
   }
-  LOG_INFO("Stopped serving.");
   return 0;
 }
 

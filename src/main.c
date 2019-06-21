@@ -60,6 +60,7 @@ int main(int argc, char **argv) {
   int port = args_info.port_arg;
   should_run = (int *) calloc(1, sizeof(int));
   *should_run = 1;
+  LOG_INFO("Initializing");
   if( register_sigint() < 0) {
     LOG_ERROR("Failed to initalize");
     LOG_DEBUG("Failed to register sigint handler");
@@ -69,6 +70,7 @@ int main(int argc, char **argv) {
   if (setup_wheel(wheel) < 0) {
     return -1;
   }
+  LOG_INFO("Initialized");
 
   pthread_t *server_thread;
   struct server_in srv_in;
@@ -78,7 +80,7 @@ int main(int argc, char **argv) {
   *srv_exit = -2;
   int first = 1;
   while (*srv_exit == -2) {
-    LOG_DEBUG("%s server thread", first-- == 1 ? "Creating": "Re-creating");
+    LOG_DEBUG("%s server thread", first == 1 ? "Creating": "Re-creating");
     server_thread = (pthread_t *) calloc(1, sizeof(pthread_t));
     srv = make_server(port);
     if (setup_server(srv) < 0) {
@@ -91,15 +93,18 @@ int main(int argc, char **argv) {
       remove_wheel(wheel);
       return -1;
     }
+    if (first == 1) LOG_INFO("Serving.");
     pthread_join(*server_thread, (void **)&srv_exit);
+    LOG_DEBUG("Server thread closed.");
 
     res = check_fail(close_server(srv), "closing server");
     free(srv);
     free(server_thread);
     if (res == -1) break;
+    first--;
   }
 
-  LOG_DEBUG("Server thread closed.");
+  LOG_INFO("Stopped serving.");
   remove_wheel(wheel);
 
   LOG_INFO("Shutdown procedure completed. Bye.");

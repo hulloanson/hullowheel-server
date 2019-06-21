@@ -146,7 +146,7 @@ int confirm_wheel(struct vwheel *wheel) {
 }
 
 int setup_wheel(struct vwheel *wheel) {
-  LOG_INFO("Setting up the virtual wheel");
+  LOG_DEBUG("Setting up the virtual wheel");
   if (get_wheel_permit(wheel) < 0) {
     return -1;
   }
@@ -162,16 +162,16 @@ int setup_wheel(struct vwheel *wheel) {
   if (confirm_wheel(wheel) < 0) {
     return -1;
   }
-  LOG_INFO("Done setting up the virtual wheel");
+  LOG_DEBUG("Done setting up the virtual wheel");
   return 0;
 }
 
 int remove_wheel(struct vwheel *wheel) {
-  LOG_INFO("Removing the virtual wheel...");
+  LOG_DEBUG("Removing the virtual wheel...");
   int res = 0;
   res = check_fail(ioctl(wheel->fd, UI_DEV_DESTROY), "ioctl: UI_DEV_DESTROY");
   res |= close_wheel(wheel);
   free(wheel);
-  LOG_INFO("Removed.");
+  LOG_DEBUG("Removed.");
   return res;
 }
