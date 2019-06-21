@@ -15,24 +15,24 @@
 
 struct vwheel *wheel;
 struct server *srv;
+int *should_run;
 
-struct server_in_out {
-  int *ret;
+struct server_in {
   struct server *srv;
   struct vwheel *wheel;
 };
 
 void* serve_in_thread(void *arg) {
-  struct server_in_out *srv_in_out = (struct server_in_out*) arg;
-  int *ret = srv_in_out->ret;
-  *ret = serve(srv_in_out->srv, srv_in_out->wheel);
-  return ret;
+  struct server_in *srv_in = (struct server_in*) arg;
+  int *ret = (int *) calloc(1, sizeof(int));
+  *ret = serve(srv_in->srv, srv_in->wheel, should_run);
+  pthread_exit(ret);
 }
 
 void int_handler(int sig, siginfo_t *siginfo, void *context) {
   signal(sig, SIG_IGN);
   printf("Interrupt detected. Exiting...\n");
-  close_server(srv);
+  *should_run = 0;
 }
 
 int register_sigint() {
@@ -51,6 +51,8 @@ int register_sigint() {
 
 // TODO: catch interrupt https://stackoverflow.com/questions/4217037/catch-ctrl-c-in-c
 int main(int argc, char **argv) {
+  should_run = (int *) calloc(1, sizeof(int));
+  *should_run = 1;
   if( register_sigint() < 0) {
     fprintf(stderr, "Couldn't register sigint handler.\n");
     return -1;
@@ -60,26 +62,35 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  srv = make_server(20000);
-  if (setup_server(srv) < 0) {
-    return -1;
+  pthread_t *server_thread;
+  struct server_in srv_in;
+  srv_in.wheel = wheel;
+
+  int *srv_exit = (int *) calloc(1, sizeof(int));
+  *srv_exit = -2;
+  int first = 1;
+  while (*srv_exit == -2) {
+    printf("%s server thread\n", first-- == 1 ? "Creating": "Re-creating");
+    server_thread = (pthread_t *) calloc(1, sizeof(pthread_t));
+    srv = make_server(20000);
+    if (setup_server(srv) < 0) {
+      return -1;
+    }
+    srv_in.srv = srv;
+    int res = pthread_create(server_thread, NULL, serve_in_thread, &srv_in);
+    if (res != 0) {
+      fprintf(stderr,
+              "Could not create thread for server. error code was %d.\n", res);
+      remove_wheel(wheel);
+      return -1;
+    }
+    pthread_join(*server_thread, (void **)&srv_exit);
+
+    res = check_fail(close_server(srv), "closing server");
+    free(srv);
+    free(server_thread);
+    if (res == -1) break;
   }
-
-  pthread_t server_thread;
-  struct server_in_out srv_in_out;
-  srv_in_out.srv = srv;
-  srv_in_out.wheel = wheel;
-  int ret = 0;
-  srv_in_out.ret = &ret;
-
-  int res = pthread_create(&server_thread, NULL, serve_in_thread, &srv_in_out);
-  if (res != 0) {
-    fprintf(stderr, "Could not create thread for server. error code was %d.\n", res);
-    remove_wheel(wheel);
-    return -1;
-  }
-
-  pthread_join(server_thread, NULL);
 
   printf("Server thread closed.\n");
   printf("Now removing wheel...\n");

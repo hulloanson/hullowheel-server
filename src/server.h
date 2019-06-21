@@ -32,7 +32,6 @@
 struct server {
   int port;
   int fd;
-  int should_run;
 };
 
 struct server* make_server(int port);
@@ -44,7 +43,7 @@ struct frame {
   char btns[BTNS_COUNT];
 };
 
-int serve(struct server *srv, struct vwheel *wheel);
+int serve(struct server *srv, struct vwheel *wheel, int *should_run);
 
 int setup_server(struct server *srv);
 

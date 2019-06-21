@@ -21,7 +21,6 @@
 struct server* make_server(int port) {
   struct server *srv = (struct server*) calloc(1, sizeof(struct server));
   srv->port = port;
-  srv->should_run = 1;
   return srv;
 }
 
@@ -103,38 +102,34 @@ int emit_frame(struct vwheel *wheel, struct frame *frame) {
 
 int close_server(struct server *srv) {
   printf("Closing server...\n");
-  srv->should_run = 0;
   int res = 0;
   res = close(srv->fd);
-  free(srv);
-  printf("Closed server.\n");
+  printf("Closed server. close() said %d. errno was %d\n", res, res == 0 ? 0 : errno);
   return res;
 }
 
-int serve(struct server *srv, struct vwheel *wheel) {
+int serve(struct server *srv, struct vwheel *wheel, int *should_run) {
   // 3 axes, 40 buttons i.e. 3 * 4 bytes + 24 bytes = 36 bytes
   char in[EXPECTED_LEN];
   printf("Serving.\n");
   int res;
-  while (srv->should_run) {
+  while (*should_run == 1) {
     // Get size
     res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
-    if (res != 0 && errno == EAGAIN)
-      continue;
+    if (res != 0 && errno == EAGAIN) {
+      printf("Receive timed out.\n");
+      return -2;
+    }
     int size = res;
     if (check_fail(res, "receive data over UDP") < 0) {
-      close_server(srv);
       return -1;
     }
-    printf("size: %d\n", size);
     // Get data
     char decompressed[EXPECTED_LEN];
     if (check_fail(decompress_data(decompressed, in, size), "decompress data") < 0) {
-      close_server(srv);
       return -1;
     }
     if (emit_frame(wheel, parse_data(decompressed)) < 0) {
-      close_server(srv);
       return -1;
     }
   }
