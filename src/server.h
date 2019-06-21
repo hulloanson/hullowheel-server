@@ -37,7 +37,7 @@ struct server {
   int should_run;
 };
 
-struct server* make_server(int port);
+struct server* make_server(int port, int should_run);
 
 struct frame {
   signed int wheel;

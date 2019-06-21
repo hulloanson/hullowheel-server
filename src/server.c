@@ -18,10 +18,10 @@
 #include "server.h"
 #include "wheel.h"
 
-struct server* make_server(int port) {
+struct server* make_server(int port, int should_run) {
   struct server *srv = (struct server*) calloc(1, sizeof(struct server));
   srv->port = port;
-  srv->should_run = 1;
+  srv->should_run = should_run;
   return srv;
 }
 
@@ -116,14 +116,24 @@ int serve(struct server *srv, struct vwheel *wheel) {
   char in[EXPECTED_LEN];
   printf("Serving.\n");
   int res;
+  int eagain_count = 0;
   while (srv->should_run) {
     // Get size
     res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
     if (res != 0 && errno == EAGAIN) {
-      close_server(srv);
-      srv = make_server(SERVER_PORT);
-      if (setup_server(srv) < 0) {
-        return -1;
+      if (eagain_count++ > 3) {
+        int should_run = srv->should_run;
+        close_server(srv);
+        srv = make_server(SERVER_PORT, should_run);
+        // usleep(100000);
+        sleep(1);
+        if (srv->should_run == 0) {
+          break;
+        }
+        if (setup_server(srv) < 0) {
+          return -1;
+        }
+        eagain_count = 0;
       }
       continue;
     }

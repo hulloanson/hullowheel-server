@@ -30,7 +30,7 @@ void* serve_in_thread(void *arg) {
 }
 
 void int_handler(int sig, siginfo_t *siginfo, void *context) {
-  signal(sig, SIG_IGN);
+  // signal(sig, SIG_IGN);
   printf("Interrupt detected. Exiting...\n");
   close_server(srv);
 }
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     return -1;
   }
 
-  srv = make_server(SERVER_PORT);
+  srv = make_server(SERVER_PORT, 1);
   if (setup_server(srv) < 0) {
     return -1;
   }
