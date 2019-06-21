@@ -19,9 +19,24 @@ I had the following inputs:
 and the following output:
 1. HulloWheel, a Android client + Linux server combination. See [Hacking](https://github.com/hulloanson/hullowheel-server#Hacking) for details
 
-## Build and run
-You will need to build it yourself for now. No binaries I'm sorry.
+## Installing
+There is a pre-built program available in the [release](https://github.com/hulloanson/hullowheel-server/releases) page. It is only for 64-bit Linux though. If your system is not, you'll have to [build the program yourself].
 
+Once downloaded, there are no installation step. Just run it.
+
+## Running
+
+```bash
+./HulloWheel-x86_64 // Or only ./HulloWheel if you built it yourself
+```
+
+Also see the available options by:
+
+```bash
+./HulloWheel-x86_64 --help
+```
+
+## Building
 ### Dependencies
 A list of libraries required:
 ```
@@ -50,7 +65,7 @@ https://github.com/hulloanson/hullowheel-server.git
 cd hullowheel-server
 ./build.sh
 ```
-A binary named `VWheel` will appear at the root directory. Run it. Try it out with https://github.com/hulloanson/hullowheel-android
+A binary named `HulloWheel` will appear at the root directory. Run it. Try it out with https://github.com/hulloanson/hullowheel-android
 
 ### Run
 ```

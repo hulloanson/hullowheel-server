@@ -69,7 +69,7 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
-/VWheel
+/HulloWheel*
 
 # gengetopts
 /src/cmdline.*
