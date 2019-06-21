@@ -66,7 +66,7 @@ A binary named `VWheel` will appear at the root directory. Run it. Try it out wi
     Possible reasons:
     - Now each frame averages 29 bytes gzipped, which contains the state of all 24 buttons and 3 axes (wheel, gas, brake). Perhaps send only the modified inputs?
   
-3. [ ] The only way to configure which port to listen to is to modify the code. Add argument support.
+3. [x] The only way to configure which port to listen to is to modify the code. Add argument support.
 4. [x] Have to restart server and android app after disconnects. Probably due to UDP intricacies I'm not familiar with.
     - Solved. Now the server auto-restarts on timeout
 
