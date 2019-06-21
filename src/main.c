@@ -61,7 +61,8 @@ int main(int argc, char **argv) {
   should_run = (int *) calloc(1, sizeof(int));
   *should_run = 1;
   if( register_sigint() < 0) {
-    LOG_ERROR("Couldn't register sigint handler.");
+    LOG_ERROR("Failed to initalize");
+    LOG_DEBUG("Failed to register sigint handler");
     return -1;
   }
   wheel = make_vwheel("HulloWheel");
@@ -77,7 +78,7 @@ int main(int argc, char **argv) {
   *srv_exit = -2;
   int first = 1;
   while (*srv_exit == -2) {
-    LOG_INFO("%s server thread", first-- == 1 ? "Creating": "Re-creating");
+    LOG_DEBUG("%s server thread", first-- == 1 ? "Creating": "Re-creating");
     server_thread = (pthread_t *) calloc(1, sizeof(pthread_t));
     srv = make_server(port);
     if (setup_server(srv) < 0) {
@@ -86,7 +87,7 @@ int main(int argc, char **argv) {
     srv_in.srv = srv;
     int res = pthread_create(server_thread, NULL, serve_in_thread, &srv_in);
     if (res != 0) {
-      LOG_ERROR("Could not create thread for server. error code was %d.\n", res);
+      LOG_ERROR("Could not create thread for server. error code was %d.", res);
       remove_wheel(wheel);
       return -1;
     }
@@ -98,8 +99,7 @@ int main(int argc, char **argv) {
     if (res == -1) break;
   }
 
-  LOG_INFO("Server thread closed.");
-  LOG_INFO("Now removing wheel...");
+  LOG_DEBUG("Server thread closed.");
   remove_wheel(wheel);
 
   LOG_INFO("Shutdown procedure completed. Bye.");

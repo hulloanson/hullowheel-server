@@ -19,7 +19,7 @@ struct vwheel* make_vwheel(const char *name) {
 }
 
 int close_wheel(struct vwheel *wheel) {
-  LOG_INFO("Closing wheel %s", wheel->name);
+  LOG_DEBUG("Closing wheel %s", wheel->name);
   return check_fail(close(wheel->fd), "close wheel by fd");
 }
 
@@ -41,7 +41,7 @@ int add_input(struct vwheel *wheel, const char *setbit_name, int ev_code,
 }
 
 int add_wheel_btns(struct vwheel *wheel) {
-  LOG_INFO("Adding buttons to the wheel");
+  LOG_DEBUG("Adding buttons to the wheel");
   int i;
   for (i = BTN_TRIGGER_HAPPY; i <= BTN_TRIGGER_HAPPY40; i++) {
     if (check_fail(add_input(wheel, "UI_SET_KEYBIT", EV_KEY, UI_SET_KEYBIT, i),
@@ -50,7 +50,7 @@ int add_wheel_btns(struct vwheel *wheel) {
       return -1;
     }
   }
-  LOG_INFO("Done adding buttons to the wheel");
+  LOG_DEBUG("Done adding buttons to the wheel");
   return 0;
 }
 
@@ -64,14 +64,14 @@ int add_wheel_abs(struct vwheel *wheel, int code) {
 }
 
 int add_wheel_w_pedals(struct vwheel *wheel) {
-  LOG_INFO("Actually making the wheel and adding pedals");
+  LOG_DEBUG("Actually making the wheel and adding pedals");
   if (add_wheel_abs(wheel, ABS_WHEEL) < 0)
     return -1;
   if (add_wheel_abs(wheel, ABS_GAS) < 0)
     return -1;
   if (add_wheel_abs(wheel, ABS_BRAKE) < 0)
     return -1;
-  LOG_INFO("Done making the wheel and its pedals.");
+  LOG_DEBUG("Done making the wheel and its pedals.");
   return 0;
 }
 
@@ -95,12 +95,14 @@ int emit(struct vwheel *wheel, int type, int code, int val, int emit_syn) {
 }
 
 int get_wheel_permit(struct vwheel *wheel) {
+  LOG_DEBUG("Getting wheel fd from uinput");
   // Obtain the fd for the wheel
   wheel->fd = open("/dev/uinput", O_RDWR);
   if (wheel->fd <= 0) {
-    fprintf(stderr, "Couldn't open /dev/uinput\n");
+    LOG_ERROR("Couldn't open /dev/uinput");
     return -1;
   }
+  LOG_DEBUG("Done getting wheel fd from uinput");
   return 0;
 }
 
@@ -111,6 +113,7 @@ int construct_wheel(struct vwheel *wheel) {
 }
 
 int register_wheel(struct vwheel *wheel) {
+  LOG_DEBUG("Registering wheel");
   struct uinput_user_dev udev;
   memset(&udev, 0, sizeof(struct uinput_user_dev));
 
@@ -128,18 +131,22 @@ int register_wheel(struct vwheel *wheel) {
                  "registering wheel to its fd") < 0) {
     return -1;
   }
+  LOG_DEBUG("Done registering wheel");
   return 0;
 }
 
 int confirm_wheel(struct vwheel *wheel) {
+  LOG_DEBUG("Actually ask uinput to create the wheel");
   // Actually tell uinput to create the device
   if (check_fail(ioctl(wheel->fd, UI_DEV_CREATE), "ioctl: UI_DEV_CREATE") < 0) {
     return -1;
   }
+  LOG_DEBUG("uinput said it has now created the wheel");
   return 0;
 }
 
 int setup_wheel(struct vwheel *wheel) {
+  LOG_INFO("Setting up the virtual wheel");
   if (get_wheel_permit(wheel) < 0) {
     return -1;
   }
@@ -155,16 +162,16 @@ int setup_wheel(struct vwheel *wheel) {
   if (confirm_wheel(wheel) < 0) {
     return -1;
   }
-
+  LOG_INFO("Done setting up the virtual wheel");
   return 0;
 }
 
 int remove_wheel(struct vwheel *wheel) {
-  LOG_INFO("Removing wheel from uinput...");
+  LOG_INFO("Removing the virtual wheel...");
   int res = 0;
   res = check_fail(ioctl(wheel->fd, UI_DEV_DESTROY), "ioctl: UI_DEV_DESTROY");
   res |= close_wheel(wheel);
   free(wheel);
-  LOG_INFO("Removed wheel from uinput.");
+  LOG_INFO("Removed.");
   return res;
 }

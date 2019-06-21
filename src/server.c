@@ -48,17 +48,17 @@ int decompress_data(char *out, char *in, int size) {
   strm.next_in = (Bytef *)in;
   strm.next_out = (Bytef *)out;
   if (inflateInit2(&strm, 16 + MAX_WBITS) != Z_OK) {
-    LOG_INFO("err in inflateInit");
+    LOG_DEBUG("err in inflateInit");
     return -1;
   }
   int res;
   if (!((res = inflate(&strm, Z_NO_FLUSH)) == Z_OK || res == Z_STREAM_END)) {
-    LOG_INFO("err in inflate. code was %d", res);
+    LOG_DEBUG("err in inflate. code was %d", res);
     return -1;
   }
 
   if (inflateEnd(&strm) != Z_OK) {
-    LOG_INFO("err in inflateEnd");
+    LOG_DEBUG("err in inflateEnd");
     return -1;
   }
   return 0;
@@ -69,7 +69,7 @@ struct frame* parse_data(char *bytes) {
   // float wheel = get_float(bytes, WHEEL_OFFSET);
   // float gas = get_float(bytes, GAS_OFFSET);
   // float brake = get_float(bytes, BRAKE_OFFSET);
-  // LOG_INFO("raw: wheel: %f; gas: %f; brake: %f", wheel, gas, brake);
+  // LOG_DEBUG("raw: wheel: %f; gas: %f; brake: %f", wheel, gas, brake);
 
   frame->wheel = normalize_rotation(get_float(bytes, WHEEL_OFFSET), WHEEL_MIN_VALUE, WHEEL_MAX_VALUE, WHEEL_EXPECTED_MIN, WHEEL_EXPECTED_MAX);
   
@@ -77,7 +77,7 @@ struct frame* parse_data(char *bytes) {
 
   frame->brake = normalize_rotation(get_float(bytes, BRAKE_OFFSET), BRAKE_MIN_VALUE, BRAKE_MAX_VALUE, BRAKE_EXPECTED_MIN, BRAKE_EXPECTED_MAX);
   bcopy(bytes + BTNS_OFFSET, frame->btns, BTNS_COUNT);
-  // LOG_INFO("normalized: wheel: %d; gas: %d; brake: %d", frame->wheel, frame->gas, frame->brake);
+  // LOG_DEBUG("normalized: wheel: %d; gas: %d; brake: %d", frame->wheel, frame->gas, frame->brake);
   return frame;
 }
 
@@ -102,10 +102,10 @@ int emit_frame(struct vwheel *wheel, struct frame *frame) {
 }
 
 int close_server(struct server *srv) {
-  LOG_INFO("Closing server...");
+  LOG_DEBUG("Closing server...");
   int res = 0;
   res = close(srv->fd);
-  LOG_INFO("Closed server. close() said %d. errno was %d", res, res == 0 ? 0 : errno);
+  LOG_DEBUG("Closed server. close() said %d. errno was %d", res, res == 0 ? 0 : errno);
   return res;
 }
 
@@ -118,7 +118,7 @@ int serve(struct server *srv, struct vwheel *wheel, int *should_run) {
     // Get size
     res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
     if (res != 0 && errno == EAGAIN) {
-      LOG_INFO("Receive timed out.");
+      LOG_DEBUG("Receive timed out.");
       return -2;
     }
     int size = res;
