@@ -110,5 +110,9 @@ Also layout of a "frame":
 
 *Note: all floats are 32-bit precision float, little endian*
 
+#### Misc
+##### Logging 
+The HulloWheel server uses macrologger (courtesy to https://github.com/dmcrodrigues/macro-logger) for logging. Kinda simple I know, but I don't want a full-blown library with additional configurations files / (de-)initalizing lines. Educate me if there was more well-tested and simple ones.
+
 ### Contributing
 First a big thank you for your efforts. Please always make PRs on the `dev` branch.
