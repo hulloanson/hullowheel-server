@@ -27,7 +27,7 @@ Once downloaded, there are no installation step. Just run it.
 ## Running
 
 ```bash
-./HulloWheel-x86_64 // Or only ./HulloWheel if you built it yourself
+./HulloWheel-x86_64 # Or only ./HulloWheel if you built it yourself
 ```
 
 Also see the available options by:
