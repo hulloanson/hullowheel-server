@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
   should_run = (int *) calloc(1, sizeof(int));
   *should_run = 1;
   if( register_sigint() < 0) {
-    fprintf(stderr, "Couldn't register sigint handler.\n");
+    LOG_ERROR("Couldn't register sigint handler.");
     return -1;
   }
   wheel = make_vwheel("HulloWheel");
