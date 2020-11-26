@@ -15,13 +15,13 @@
 #include "cmdline.h"
 #include "macrologger.h"
 
-struct vwheel *wheel;
+vwheel *wheel;
 struct server *srv;
 int *should_run;
 
 struct server_in {
   struct server *srv;
-  struct vwheel *wheel;
+  vwheel *wheel;
 };
 
 void* serve_in_thread(void *arg) {

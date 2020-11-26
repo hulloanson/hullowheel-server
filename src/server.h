@@ -3,30 +3,8 @@
 
 #include <limits.h>
 
-#define WHEEL_OFFSET 0
-#define GAS_OFFSET 4
-#define BRAKE_OFFSET 8
-#define BTNS_OFFSET 12
-#define BTNS_COUNT 24
-
-#define EXPECTED_LEN 3 * 4 + BTNS_COUNT
-
-#define WHEEL_MAX_VALUE 220
-#define WHEEL_MIN_VALUE -40
-#define WHEEL_EXPECTED_MAX SHRT_MAX
-#define WHEEL_EXPECTED_MIN SHRT_MIN
-
-#define GAS_MIN_VALUE 0
-#define GAS_MAX_VALUE 1000
-#define GAS_EXPECTED_MAX SHRT_MAX
-#define GAS_EXPECTED_MIN SHRT_MIN
-
-#define BRAKE_MIN_VALUE 0
-#define BRAKE_MAX_VALUE 1000
-#define BRAKE_EXPECTED_MAX SHRT_MAX
-#define BRAKE_EXPECTED_MIN SHRT_MIN
-
 #include <string.h>
+#include <stdint.h>
 #include "wheel.h"
 
 struct server {
@@ -36,14 +14,16 @@ struct server {
 
 struct server* make_server(int port);
 
-struct frame {
-  signed int wheel;
-  signed int gas;
-  signed int brake;
-  char btns[BTNS_COUNT];
-};
+typedef struct {
+  int16_t wheel;
+  uint8_t gas;
+  uint8_t brake;
+  uint8_t btns_gp1;
+  uint8_t btns_gp2;
+  uint8_t btns_gp3;
+} frame;
 
-int serve(struct server *srv, struct vwheel *wheel, int *should_run);
+int serve(struct server *srv, vwheel *wheel, int *should_run);
 
 int setup_server(struct server *srv);
 
