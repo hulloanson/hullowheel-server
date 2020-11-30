@@ -11,9 +11,9 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <strings.h>
-#include <math.h>
 #include <zlib.h>
 #include <errno.h>
+#include <stdbool.h>
 #include "lib.h"
 #include "server.h"
 #include "wheel.h"
@@ -48,35 +48,44 @@ struct server* make_server(int port) {
 }
 
 int get_btn_state(char *btn_state, int button) { // `button`: 0 - BTNS_COUNT - 1
-  int byte_offset = floor(BTNS_COUNT / 8);
+  int byte_offset = button / 8;
   int bit_offset = button % 8;
-  return btn_state[byte_offset] >> bit_offset & 1;
+  int value = btn_state[byte_offset] >> bit_offset & 1;
+  LOG_DEBUG("reading %d-th button's state. byte_offset: %d; bit_offset: %d; value: %d", button, byte_offset, bit_offset, value);
+  return value;
+}
+
+void print_out_of_range(const char *what, int min, int max, int actual) {
+  LOG_DEBUG("Failed to parse data. %s value out of range. Expected %d - %d, got %d", what, min, max, actual);
 }
 
 int parse_data(char *bytes, state *s) {
   // wheel: expects -150 to 150
   s->wheel = *((uint16_t *) (bytes + WHEEL_OFFSET));
   if (s->wheel < WHEEL_MIN_VALUE || s->wheel > WHEEL_MAX_VALUE) {
-    LOG_DEBUG("Failed to parse data. Wheel value out of range");
+    print_out_of_range("Wheel", WHEEL_MIN_VALUE, WHEEL_MAX_VALUE, s->wheel);
     return -1;
   }
   s->gas = *((uint8_t *)(bytes + GAS_OFFSET));
-  if (s->gas < GAS_MIN_VALUE || s->wheel > GAS_MAX_VALUE) {
-    LOG_DEBUG("Failed to parse data. Gas value out of range");
+  if (s->gas < GAS_MIN_VALUE || s->gas > GAS_MAX_VALUE) {
+    print_out_of_range("Gas", GAS_MIN_VALUE, GAS_MAX_VALUE, s->gas);
     return -1;
   }
   s->brake = *((uint8_t *)(bytes + BRAKE_OFFSET));
-  if (s->brake < BRAKE_MIN_VALUE || s->wheel > BRAKE_MAX_VALUE) {
-    LOG_DEBUG("Failed to parse data. Brake value out of range");
+  if (s->brake < BRAKE_MIN_VALUE || s->brake > BRAKE_MAX_VALUE) {
+    print_out_of_range("Brake", BRAKE_MIN_VALUE, BRAKE_MAX_VALUE, s->brake);
     return -1;
   }
+  LOG_DEBUG("first button byte: %u", (unsigned char)bytes[BTNS_OFFSET]);
+  LOG_DEBUG("second button byte: %u", (unsigned char)bytes[BTNS_OFFSET + 1]);
+  LOG_DEBUG("third button byte: %u", (unsigned char) bytes[BTNS_OFFSET + 2]);
   for (int i = 0; i < BTNS_COUNT; i++) {
     s->btns[i] = get_btn_state(bytes + BTNS_OFFSET, i) ? 1 : 0;
   }
   return 0;
 }
 
-int emit_wheel(struct wheel *wheel, uint16_t val) {
+int emit_wheel(vwheel *wheel, int16_t val) {
   if (emit(wheel, EV_ABS, ABS_WHEEL, val, 1) < 0) {
     LOG_DEBUG("Failed to emit ABS_WHEEL value %d.", val);
     return -1;
@@ -119,15 +128,27 @@ int close_server(struct server *srv) {
   return res;
 }
 
+bool prevConnected = false;
+bool connected = false;
+
 int serve(struct server *srv, vwheel *wheel, int *should_run) {
   char in[EXPECTED_LEN];
   int res;
   while (*should_run == 1) {
     // Get size
     res = recvfrom(srv->fd, in, EXPECTED_LEN, 0, 0, 0);
+    prevConnected = connected;
     if (res != 0 && errno == EAGAIN) {
-      LOG_DEBUG("Receive timed out.");
+      connected = false;
+      if (prevConnected != false) {
+        LOG_INFO("Disconnected.");
+      }
       return -2;
+    }
+    // received normally, without timeout
+    connected = true;
+    if (prevConnected != true) {
+      LOG_INFO("Connected");
     }
     int size = res;
     if (check_fail(res, "receive data over UDP") < 0) {
@@ -138,7 +159,7 @@ int serve(struct server *srv, vwheel *wheel, int *should_run) {
     LOG_DEBUG("wheel: %d; gas: %d; brake: %d",
       s.wheel, s.gas, s.brake
     );
-    // execute_state(wheel, s);
+    execute_state(wheel, s);
   }
   return 0;
 }

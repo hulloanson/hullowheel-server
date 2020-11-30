@@ -5,13 +5,13 @@
 #include <stdint.h>
 
 #define WHEEL_MAX_VALUE 150
-#define WHEEL_MIN_VALUE 150
+#define WHEEL_MIN_VALUE -150
 
 #define GAS_MIN_VALUE 0
-#define GAS_MAX_VALUE 255
+#define GAS_MAX_VALUE 120
 
 #define BRAKE_MIN_VALUE 0
-#define BRAKE_MAX_VALUE 255
+#define BRAKE_MAX_VALUE 120
 
 typedef struct {
   int fd;

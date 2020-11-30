@@ -77,6 +77,9 @@ int add_wheel_w_pedals(vwheel *wheel) {
 }
 
 int emit(vwheel *wheel, int type, int code, int val, int emit_syn) {
+  if (code >= BTN_TRIGGER_HAPPY1 && code <= BTN_TRIGGER_HAPPY40) {
+    LOG_DEBUG("emit: Emitting button event. value: %d", val);
+  } 
   struct input_event ie;
 
   memset(&ie, 0, sizeof(struct input_event));
