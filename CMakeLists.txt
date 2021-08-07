@@ -12,7 +12,10 @@ SET(CMAKE_EXE_LINKER_FLAGS "-static")
 
 include_directories("/usr/include/")
 
-link_libraries("explain" "pthread" "m" "z")
+link_libraries(
+"pthread" 
+"m" 
+"z")
 
 aux_source_directory("${CMAKE_SOURCE_DIR}/src" SOURCES)
 

@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libexplain/ioctl.h>
 #include <limits.h>
 #include <pthread.h>
 #include <signal.h>

@@ -1,7 +1,6 @@
 #include "wheel.h"
 #include "lib.h"
 #include <fcntl.h>
-#include <libexplain/ioctl.h>
 #include <limits.h>
 #include <linux/input.h>
 #include <linux/uinput.h>
@@ -11,6 +10,7 @@
 #include <strings.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <errno.h>
 #include "macrologger.h"
 
 vwheel* make_vwheel(const char *name) {
