@@ -126,7 +126,7 @@ int get_wheel_permit(vwheel *wheel) {
   // Obtain the fd for the wheel
   wheel->fd = open("/dev/uinput", O_RDWR);
   if (wheel->fd <= 0) {
-    LOG_ERROR("Couldn't open /dev/uinput");
+    LOG_ERROR("Couldn't open /dev/uinput: %s (%d)", strerror(errno), errno);
     return -1;
   }
   LOG_DEBUG("Done getting wheel fd from uinput");
